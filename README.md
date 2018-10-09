@@ -6,4 +6,4 @@ Real time stop watch displaying to 4 7-segment displays. Uses two shift register
 On the first shift register, the 8 bits of data are wired to all displays. The second shift register then controls which display should be displayed with that number by enabling it's transistor to ground the display and complete the circuit.
 
 ### Circuit
-![circuit](https://raw.githubusercontent.com/electro2560/stopwatch-segment-display/branch/master/stopwatch circuit_bb.png)
+![circuit](https://github.com/electro2560/stopwatch-segment-display/raw/master/stopwatch%20circuit_bb.png)
