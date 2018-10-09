@@ -1,5 +1,7 @@
 /*
 
+  stopwatch_segment_display.ino
+
   Real time stop watch displaying to 4 7-segment displays
   Uses two shift registers. One controls the 8 bits of the segments,
   and the second controls which segment is being displayed.
@@ -94,9 +96,7 @@ void recalculateDigits() {
      Title: SevenSegmentLEDdisplay102a.ino
      Author: Mel Lester Jr.
      Date: 2017-02-20
-     Code version: <code version>
      Availability: https://www.hackster.io/meljr/7-segment-led-displays-102-using-a-shift-register-6b6976
-
 ***************************************************************************************/
 byte numToBin(int someNumber) {
   switch (someNumber) {
