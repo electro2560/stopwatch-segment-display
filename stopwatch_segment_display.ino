@@ -1,3 +1,28 @@
+/*
+
+  Real time stop watch displaying to 4 7-segment displays
+  Uses two shift registers. One controls the 8 bits of the segments,
+  and the second controls which segment is being displayed.
+  The loop displays one digit at a time to each display.
+  When the time interval has been reached, the timer count increases.
+
+  On the first shift register, the 8 bits of data are wired to all
+  4 displays. The second shift register then controls which display
+  should be displayed with that number by enabling it's transistor
+  to ground the display and complete the circuit.
+
+  The circuit:
+  - 2 shift registeres dasiy chained
+  - 4 7-segment displays
+  - 4 transistors controlling power to each display
+
+  created 8 March 2018
+  by Mitchell Sulkowski
+  modified 8 Oct 2018
+  by Mitchell Sulkowski
+
+  https://github.com/electro2560/stopwatch-segment-display
+*/
 
 //yellow
 int data_Pin = 10;
@@ -11,10 +36,13 @@ int numberToDisplay = 0;
 //How many digits are being displayed
 const int digits = 4;
 
+//Which display should display the decimal point (1-digits)
+const int decimal = 2;
+
 int data[digits];
 
 void setup() {
-    pinMode(data_Pin, OUTPUT);
+  pinMode(data_Pin, OUTPUT);
   pinMode(clock_Pin, OUTPUT);
   pinMode(latch_Pin, OUTPUT);
 
@@ -23,24 +51,20 @@ void setup() {
   recalculateDigits();
 }
 
-
-const int td = 1;
-
-//const unsigned long interval = (1000 / 100) - 1;   // the time we need to wait
 const unsigned long interval = (1000000 / 100) - 600;
 
-unsigned long previousMillis = 0; // millis() returns an unsigned long.
+unsigned long previousMicros = 0; //previous time of when the display was last incremented
 
 void loop() {
 
-  unsigned long currentMillis = micros(); // grab current time
-
-  // check if "interval" time has passed to increment count
-  if (currentMillis - previousMillis >= interval) {
-    previousMillis = micros();
+  unsigned long currentMicros = micros(); //current time
+  //check if the time has passed to increment to the next digit
+  if (currentMicros - previousMicros >= interval) {
+    previousMicros = micros();
 
     numberToDisplay++;
 
+    //Reset the display back to zero when 99.99 seconds has passed
     if (numberToDisplay > 9999) numberToDisplay = 0;
 
   }
@@ -50,44 +74,9 @@ void loop() {
   for (int d = 0; d < digits; d++) {
     digitalWrite(latch_Pin, LOW);  // prepare shift register for data
     shiftOut(data_Pin, clock_Pin, LSBFIRST, B00010000 << d); // send data
-    shiftOut(data_Pin, clock_Pin, LSBFIRST, numToBin(data[d])); // send data
+    shiftOut(data_Pin, clock_Pin, LSBFIRST, numToBin(data[d]) + (d == decimal ? B00000001 : 0)); // send data
     digitalWrite(latch_Pin, HIGH); // update display
   }
-
-  /*digitalWrite(latch_Pin, LOW);  // prepare shift register for data
-    shiftOut(data_Pin, clock_Pin, LSBFIRST, B00010000); // send data
-    shiftOut(data_Pin, clock_Pin, LSBFIRST, myfnNumToBits(data[0])); // send data
-    digitalWrite(latch_Pin, HIGH); // update display
-
-    //delay(td);
-
-    digitalWrite(latch_Pin, LOW);  // prepare shift register for data
-    shiftOut(data_Pin, clock_Pin, LSBFIRST, B00100000); // send data
-    shiftOut(data_Pin, clock_Pin, LSBFIRST, myfnNumToBits(data[1])); // send data
-    digitalWrite(latch_Pin, HIGH); // update display
-
-    //delay(td);
-
-    digitalWrite(latch_Pin, LOW);  // prepare shift register for data
-    shiftOut(data_Pin, clock_Pin, LSBFIRST, B01000000); // send data
-    shiftOut(data_Pin, clock_Pin, LSBFIRST, myfnNumToBits(data[2]) + B00000001); // send data
-    digitalWrite(latch_Pin, HIGH); // update display
-
-    //delay(td);
-
-    digitalWrite(latch_Pin, LOW);  // prepare shift register for data
-    shiftOut(data_Pin, clock_Pin, LSBFIRST, B10000000); // send data
-    shiftOut(data_Pin, clock_Pin, LSBFIRST, myfnNumToBits(data[3])); // send data
-    digitalWrite(latch_Pin, HIGH); // update display*/
-
-
-  //delay(td);
-
-
-
-  //Serial.print("end");
-  // Serial.println(micros());
-
 
 }
 
@@ -95,19 +84,10 @@ void recalculateDigits() {
 
   for (int d = 0; d < digits; d++) {
 
-    // if(d == 0) data[d] = numberToDisplay % 10;
-    // else data[d] = (numberToDisplay / (int) pow(10, d)) % 10;
-
     data[d] = (numberToDisplay / (int) pow(10, d)) % 10;
-
-    //data[d] = (d == 0 ? numberToDisplay : (numberToDisplay / (10^d))) % 10;
 
   }
 
-  //data[0] = numberToDisplay % 10;
-  //data[1] = (numberToDisplay / 10) % 10;
-  //data[2] = (numberToDisplay / 100) % 10;
-  //data[3] = (numberToDisplay / 1000) % 10;
 }
 
 /***************************************************************************************
@@ -172,4 +152,5 @@ byte numToBin(int someNumber) {
       return B10010010; // Error condition, displays three vertical bars
       break;
   }
+
 }
