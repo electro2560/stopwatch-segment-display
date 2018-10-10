@@ -53,25 +53,25 @@ void setup() {
   recalculateDigits();
 }
 
-const unsigned long interval = (1000000 / 100) - 600;
+//const unsigned long interval = (1000000 / 100) - 600;
+const unsigned long interval = 1000 / 100;
 
-unsigned long previousMicros = 0; //previous time of when the display was last incremented
+unsigned long previousMillis = 0; //previous time of when the display was last incremented
 
 void loop() {
 
-  unsigned long currentMicros = micros(); //current time
+  unsigned long currentMillis = millis(); //current time
   //check if the time has passed to increment to the next digit
-  if (currentMicros - previousMicros >= interval) {
-    previousMicros = micros();
+  if (currentMillis - previousMillis >= interval) {
+    previousMillis = millis();
 
     numberToDisplay++;
 
     //Reset the display back to zero when 99.99 seconds has passed
     if (numberToDisplay > 9999) numberToDisplay = 0;
 
+    recalculateDigits();
   }
-
-  recalculateDigits();
 
   for (int d = 0; d < digits; d++) {
     digitalWrite(latch_Pin, LOW);  // prepare shift register for data
@@ -79,7 +79,7 @@ void loop() {
     shiftOut(data_Pin, clock_Pin, LSBFIRST, numToBin(data[d]) + (d == decimal ? B00000001 : 0)); // send data
     digitalWrite(latch_Pin, HIGH); // update display
   }
-
+  
 }
 
 void recalculateDigits() {
